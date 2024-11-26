@@ -1,12 +1,13 @@
 <?php
 /**
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ * @package vwtt
  */
 
 $pokemons = json_decode( wp_remote_get( 'https://pokeapi.co/api/v2/type/' . $attributes['selectedPokemontype'] )['body'], true )['pokemon'];
 ?>
 
-<p <?php echo get_block_wrapper_attributes(); ?>>
+<p <?php echo esc_attr( get_block_wrapper_attributes() ); ?>>
 Покемоны типа <?php echo esc_html( $attributes['selectedPokemontype'] ); ?>:
 </p>
 
