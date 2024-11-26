@@ -11,7 +11,13 @@ import { __ } from '@wordpress/i18n';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+
+import apiFetch from '@wordpress/api-fetch';
+
+import { PanelBody, SelectControl } from '@wordpress/components';
+
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -29,10 +35,53 @@ import './editor.scss';
  *
  * @return {Element} Element to render.
  */
-export default function Edit() {
+
+
+export default function Edit({ attributes, setAttributes }) {
+	const { selectedPokemontype } = attributes;
+	const defaultSelection = 'normal';
+
+	var currentPokemon = defaultSelection;
+	if (attributes.selectedPokemontype) {
+		//setType(attributes.selectedPokemontype);
+		currentPokemon = attributes.selectedPokemontype;
+	}
+	const [pokemonState, setState] = useState(currentPokemon);
+
+	let types = [];
+
+	apiFetch({ url: 'https://pokeapi.co/api/v2/type/', credentials: 'omit' })
+		.then((response) => {
+			console.log(response['results']);
+			for (let i = 0; i < response['results'].length; i++) {
+				types.push({
+					value: response['results'][i].name,
+					label: response['results'][i].name
+				})
+			}
+
+		});
+
 	return (
-		<p { ...useBlockProps() }>
-			{ __( 'Vw Test Block – hello from the editor!', 'vw-test-block' ) }
-		</p>
+		<>
+			<InspectorControls>
+				<PanelBody title={'Выбор типа покемона'}>
+					<SelectControl
+						label={__('Покемон')}
+						value={pokemonState} // e.g: value = [ 'a', 'c' ]
+						onChange={(pokemon) => {
+							setState(pokemon);
+							setAttributes({ selectedPokemontype: pokemon })
+						}}
+						options={types}
+
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<p {...useBlockProps()}>
+				Выбран тип покемона: {pokemonState}
+			</p>
+		</>
+
 	);
 }
